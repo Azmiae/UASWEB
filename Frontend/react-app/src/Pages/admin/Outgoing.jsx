@@ -7,6 +7,8 @@ export default function Outgoing() {
     { id: 3, name: 'Minyak', stock: 60 },
   ])
 
+  const [transactions, setTransactions] = useState([])
+
   const [productId, setProductId] = useState('')
   const [quantity, setQuantity] = useState('')
   const [message, setMessage] = useState('')
@@ -17,34 +19,45 @@ export default function Outgoing() {
     setMessage('')
     setError('')
 
-    if (!productId || !quantity || quantity <= 0) {
+    if (!productId || quantity <= 0) {
       setError('Data transaksi tidak valid')
       return
     }
 
-    const selectedProduct = products.find((p) => p.id === Number(productId))
+    const product = products.find((p) => p.id === Number(productId))
 
-    if (!selectedProduct) {
-      setError('Produk tidak ditemukan')
-      return
-    }
-
-    if (Number(quantity) > selectedProduct.stock) {
+    // VALIDASI STOK
+    if (product.stock < Number(quantity)) {
       setError('Stok tidak mencukupi')
       return
     }
 
-    // update stok (simulasi backend)
-    const updatedProducts = products.map((p) =>
-      p.id === selectedProduct.id
-        ? { ...p, stock: p.stock - Number(quantity) }
-        : p
+    // update stok (dikurangi)
+    setProducts(
+      products.map((p) =>
+        p.id === product.id ? { ...p, stock: p.stock - Number(quantity) } : p
+      )
     )
 
-    setProducts(updatedProducts)
+    // simpan transaksi
+    setTransactions([
+      ...transactions,
+      {
+        id: Date.now(),
+        product: product.name,
+        qty: Number(quantity),
+        date: new Date().toLocaleDateString('id-ID'),
+      },
+    ])
+
     setMessage('Transaksi barang keluar berhasil')
-    setProductId('')
     setQuantity('')
+    setProductId('')
+  }
+
+  const deleteTransaction = (id) => {
+    if (!window.confirm('Hapus transaksi ini?')) return
+    setTransactions(transactions.filter((t) => t.id !== id))
   }
 
   return (
@@ -52,13 +65,13 @@ export default function Outgoing() {
       <h1>Transaksi Barang Keluar</h1>
       <p style={styles.subtitle}>Catat barang yang keluar dari gudang</p>
 
+      {message && <p style={styles.success}>{message}</p>}
       {error && <p style={styles.error}>{error}</p>}
-      {message && <p style={styles.message}>{message}</p>}
 
       {/* FORM */}
       <form onSubmit={submit} style={styles.form}>
         <div style={styles.formGroup}>
-          <label>Produk</label>
+          <label>Nama Produk</label>
           <select
             value={productId}
             onChange={(e) => setProductId(e.target.value)}
@@ -67,14 +80,14 @@ export default function Outgoing() {
             <option value="">-- Pilih Produk --</option>
             {products.map((p) => (
               <option key={p.id} value={p.id}>
-                {p.name} (Stok: {p.stock})
+                {p.name} (stok: {p.stock})
               </option>
             ))}
           </select>
         </div>
 
         <div style={styles.formGroup}>
-          <label>Jumlah</label>
+          <label>Jumlah Keluar</label>
           <input
             type="number"
             value={quantity}
@@ -87,22 +100,43 @@ export default function Outgoing() {
       </form>
 
       {/* TABLE */}
-      <h3 style={{ marginTop: 40 }}>Stok Produk</h3>
+      <h3 style={{ marginTop: 40 }}>Riwayat Transaksi Keluar</h3>
 
       <table style={styles.table}>
         <thead>
           <tr>
-            <th>Produk</th>
-            <th>Stok Saat Ini</th>
+            <th style={styles.th}>No</th>
+            <th style={styles.th}>Produk</th>
+            <th style={styles.th}>Jumlah</th>
+            <th style={styles.th}>Tanggal</th>
+            <th style={styles.th}>Aksi</th>
           </tr>
         </thead>
         <tbody>
-          {products.map((p) => (
-            <tr key={p.id}>
-              <td>{p.name}</td>
-              <td>{p.stock}</td>
+          {transactions.map((t, i) => (
+            <tr key={t.id}>
+              <td style={styles.td}>{i + 1}</td>
+              <td style={styles.td}>{t.product}</td>
+              <td style={styles.td}>{t.qty}</td>
+              <td style={styles.td}>{t.date}</td>
+              <td style={styles.td}>
+                <button
+                  style={styles.deleteBtn}
+                  onClick={() => deleteTransaction(t.id)}
+                >
+                  Hapus
+                </button>
+              </td>
             </tr>
           ))}
+
+          {transactions.length === 0 && (
+            <tr>
+              <td colSpan="5" style={{ textAlign: 'center', padding: 20 }}>
+                Belum ada transaksi
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
     </div>
@@ -120,15 +154,15 @@ const styles = {
     color: '#6b7280',
     marginBottom: '20px',
   },
-  message: {
-    marginBottom: '20px',
-    fontWeight: 'bold',
+  success: {
     color: '#15803d',
+    fontWeight: 'bold',
+    marginBottom: '12px',
   },
   error: {
-    marginBottom: '20px',
-    fontWeight: 'bold',
     color: '#b91c1c',
+    fontWeight: 'bold',
+    marginBottom: '12px',
   },
 
   form: {
@@ -153,8 +187,24 @@ const styles = {
   },
 
   table: {
-    width: '400px',
+    width: '100%',
     borderCollapse: 'collapse',
     marginTop: '10px',
+  },
+  th: {
+    padding: '12px',
+    background: '#fef9c3',
+    borderBottom: '2px solid #e5e7eb',
+    textAlign: 'left',
+  },
+  td: {
+    padding: '12px',
+    borderBottom: '1px solid #e5e7eb',
+  },
+  deleteBtn: {
+    background: '#fecaca',
+    border: 'none',
+    padding: '6px 10px',
+    cursor: 'pointer',
   },
 }
