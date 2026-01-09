@@ -1,4 +1,8 @@
+import { useNavigate } from 'react-router-dom'
+
 export default function DashboardAdmin() {
+  const navigate = useNavigate()
+
   return (
     <div style={styles.wrapper}>
       {/* SIDEBAR */}
@@ -7,28 +11,43 @@ export default function DashboardAdmin() {
 
         <nav style={styles.menu}>
           <div style={styles.active}>Dashboard</div>
-          <div style={styles.link}>Manajemen Produk</div>
-          <div style={styles.link}>Transaksi Masuk</div>
-          <div style={styles.link}>Transaksi Keluar</div>
-          <div style={styles.link}>Manajemen User</div>
-          <div style={styles.link}>Riwayat Transaksi</div>
+
+          <div style={styles.link} onClick={() => navigate('/admin/products')}>
+            Manajemen Produk
+          </div>
+
+          <div style={styles.link} onClick={() => navigate('/admin/incoming')}>
+            Transaksi Masuk
+          </div>
+
+          <div style={styles.link} onClick={() => navigate('/admin/outgoing')}>
+            Transaksi Keluar
+          </div>
+
+          <div style={styles.link} onClick={() => navigate('/admin/users')}>
+            Manajemen User
+          </div>
+
+          <div
+            style={styles.link}
+            onClick={() => navigate('/admin/transactions')}
+          >
+            Riwayat Transaksi
+          </div>
         </nav>
       </aside>
 
-      {/* MAIN CONTENT */}
+      {/* MAIN */}
       <main style={styles.main}>
-        {/* HEADER */}
-        <div style={styles.header}>
-          <h1>Dashboard Admin</h1>
-          <p style={styles.subtitle}>Ringkasan sistem manajemen gudang</p>
-        </div>
+        <h1>Dashboard Admin</h1>
+        <p style={styles.subtitle}>Ringkasan sistem manajemen gudang</p>
 
         {/* SUMMARY */}
         <div style={styles.cards}>
-          <SummaryCard title="Total Produk" value="120" />
-          <SummaryCard title="Transaksi Masuk" value="340" />
-          <SummaryCard title="Transaksi Keluar" value="280" />
-          <SummaryCard title="Total User" value="8" />
+          <Card title="Total Produk" value="120" />
+          <Card title="Transaksi Masuk" value="340" />
+          <Card title="Transaksi Keluar" value="280" />
+          <Card title="Total User" value="8" />
         </div>
       </main>
     </div>
@@ -36,8 +55,7 @@ export default function DashboardAdmin() {
 }
 
 /* ===== COMPONENT ===== */
-
-function SummaryCard({ title, value }) {
+function Card({ title, value }) {
   return (
     <div style={styles.card}>
       <p style={styles.cardTitle}>{title}</p>
@@ -47,7 +65,6 @@ function SummaryCard({ title, value }) {
 }
 
 /* ===== STYLE ===== */
-
 const styles = {
   wrapper: {
     display: 'flex',
@@ -56,7 +73,6 @@ const styles = {
     background: '#f9fafb',
   },
 
-  /* SIDEBAR */
   sidebar: {
     width: '240px',
     background: '#fef9c3',
@@ -80,19 +96,15 @@ const styles = {
     color: '#92400e',
   },
 
-  /* MAIN */
   main: {
     flex: 1,
     padding: '40px',
   },
-  header: {
-    marginBottom: '30px',
-  },
   subtitle: {
     color: '#6b7280',
+    marginBottom: '30px',
   },
 
-  /* CARDS */
   cards: {
     display: 'grid',
     gridTemplateColumns: 'repeat(4, 1fr)',
