@@ -1,9 +1,16 @@
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
+import { useState } from 'react'
 
 export default function Layout() {
   const navigate = useNavigate()
   const location = useLocation()
+  const [openProfile, setOpenProfile] = useState(false)
 
+  /* ===== USER DATA ===== */
+  const name = localStorage.getItem('name') || 'Admin'
+  const role = localStorage.getItem('role') || 'staff'
+
+  /* ===== MENU (ADMIN) ===== */
   const menu = [
     { label: 'Dashboard', path: '/admin' },
     { label: 'Manajemen Produk', path: '/admin/products' },
@@ -13,15 +20,20 @@ export default function Layout() {
     { label: 'Riwayat Transaksi', path: '/admin/transactions' },
   ]
 
+  /* ===== LOGOUT ===== */
+  const logout = () => {
+    localStorage.clear()
+    navigate('/', { replace: true })
+  }
+
   return (
     <div style={styles.wrapper}>
       {/* SIDEBAR */}
       <aside style={styles.sidebar}>
-        {/* LOGO */}
+        {/* TOP */}
         <div>
           <h1 style={styles.logo}>GudangApp</h1>
 
-          {/* MENU */}
           <nav style={styles.menu}>
             {menu.map((m) => (
               <div
@@ -39,17 +51,26 @@ export default function Layout() {
         </div>
 
         {/* PROFILE */}
-        <div style={styles.profile}>
-          <div style={styles.avatar}>A</div>
-          <div>
-            <div style={styles.profileName}>Admin</div>
-            <div
-              style={styles.profileLink}
-              onClick={() => navigate('/profile')}
-            >
-              Lihat Profile
+        <div style={styles.profileWrapper}>
+          <div
+            style={styles.profile}
+            onClick={() => setOpenProfile(!openProfile)}
+          >
+            <div style={styles.avatar}>{name[0].toUpperCase()}</div>
+            <div>
+              <div style={styles.profileName}>{name}</div>
+              <div style={styles.profileRole}>{role}</div>
             </div>
           </div>
+
+          {openProfile && (
+            <div style={styles.profileMenu}>
+              <div style={styles.profileItem}>👤 {name}</div>
+              <div style={styles.profileItem} onClick={logout}>
+                🚪 Logout
+              </div>
+            </div>
+          )}
         </div>
       </aside>
 
@@ -98,7 +119,7 @@ const styles = {
     padding: '10px 14px',
     borderRadius: '8px',
     cursor: 'pointer',
-    fontSize: '16px',
+    fontSize: '15px',
     color: '#374151',
   },
 
@@ -109,10 +130,15 @@ const styles = {
   },
 
   /* PROFILE */
+  profileWrapper: {
+    position: 'relative',
+  },
+
   profile: {
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
+    cursor: 'pointer',
     paddingTop: '20px',
     borderTop: '1px solid #fde68a',
   },
@@ -134,10 +160,27 @@ const styles = {
     fontSize: '15px',
   },
 
-  profileLink: {
-    fontSize: '13px',
-    color: '#92400e',
+  profileRole: {
+    fontSize: '12px',
+    color: '#6b7280',
+  },
+
+  profileMenu: {
+    position: 'absolute',
+    bottom: '70px',
+    left: 0,
+    width: '180px',
+    background: '#ffffff',
+    borderRadius: '10px',
+    boxShadow: '0 8px 20px rgba(0,0,0,0.1)',
+    overflow: 'hidden',
+  },
+
+  profileItem: {
+    padding: '12px 16px',
     cursor: 'pointer',
+    fontSize: '14px',
+    borderBottom: '1px solid #f3f4f6',
   },
 
   /* CONTENT */

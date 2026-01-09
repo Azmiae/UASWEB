@@ -10,11 +10,14 @@ export default function Login() {
   const submit = (e) => {
     e.preventDefault()
 
-    // SIMULASI LOGIN (FRONTEND)
     if (email === 'admin@test.com') {
-      navigate('/admin')
+      localStorage.setItem('role', 'admin')
+      localStorage.setItem('name', 'Admin')
+      navigate('/admin', { replace: true })
     } else {
-      navigate('/staff')
+      localStorage.setItem('role', 'staff')
+      localStorage.setItem('name', 'Staff')
+      navigate('/staff', { replace: true })
     }
   }
 

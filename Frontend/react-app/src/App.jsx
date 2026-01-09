@@ -21,7 +21,7 @@ export default function App() {
       <Route path="/" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
 
-      {/* ================= ADMIN & STAFF (PAKAI SIDEBAR) ================= */}
+      {/* ================= ADMIN & STAFF */}
       <Route element={<Layout />}>
         {/* ADMIN */}
         <Route path="/admin" element={<DashboardAdmin />} />
