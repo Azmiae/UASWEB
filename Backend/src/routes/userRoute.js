@@ -8,8 +8,8 @@ const userController = require('../controllers/userControllers');
 router.get(
   '/profile',
   authMiddleware,
-  authorizeRole('admin'),
-  userController.getProfile
+  authorizeRole('user', 'staff', 'admin'),
+  userController.getProfile,
 );
 
 module.exports = router;

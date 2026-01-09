@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-
-const authMiddleware = (req, res, next) => {
+module.exports = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -12,11 +11,9 @@ const authMiddleware = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
+    req.user = decoded; // { id, email, role }
     next();
-  } catch (err) {
+  } catch {
     return res.status(401).json({ message: 'Token tidak valid' });
   }
 };
-
-module.exports = authMiddleware;
