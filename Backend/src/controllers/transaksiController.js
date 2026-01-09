@@ -23,7 +23,6 @@ exports.masuk = async (req, res) => {
 };
 
 
-const Product = require('../models/Product');
 
 exports.keluar = async (req, res) => {
   const { productId, quantity } = req.body;
