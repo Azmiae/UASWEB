@@ -1,14 +1,9 @@
 import { useState } from 'react'
 
 export default function Incoming() {
-  const [products, setProducts] = useState([
-    { id: 1, name: 'Beras', stock: 100 },
-    { id: 2, name: 'Gula', stock: 80 },
-    { id: 3, name: 'Minyak', stock: 60 },
-  ])
+  const [products, setProducts] = useState([])
 
   const [transactions, setTransactions] = useState([])
-
   const [productId, setProductId] = useState('')
   const [quantity, setQuantity] = useState('')
   const [message, setMessage] = useState('')
@@ -16,34 +11,35 @@ export default function Incoming() {
   const submit = (e) => {
     e.preventDefault()
 
-    if (!productId || quantity <= 0) {
+    if (!productId || Number(quantity) <= 0) {
       setMessage('Data transaksi tidak valid')
       return
     }
 
     const product = products.find((p) => p.id === Number(productId))
+    if (!product) return
 
-    // update stok
+    // update stok produk
     setProducts(
       products.map((p) =>
         p.id === product.id ? { ...p, stock: p.stock + Number(quantity) } : p
       )
     )
 
-    // simpan transaksi
-    setTransactions([
-      ...transactions,
+    // simpan riwayat transaksi
+    setTransactions((prev) => [
       {
         id: Date.now(),
         product: product.name,
         qty: Number(quantity),
-        date: new Date().toLocaleDateString('id-ID'),
+        date: new Date().toLocaleString('id-ID'),
       },
+      ...prev,
     ])
 
     setMessage('Transaksi barang masuk berhasil')
-    setQuantity('')
     setProductId('')
+    setQuantity('')
   }
 
   const deleteTransaction = (id) => {
@@ -80,6 +76,7 @@ export default function Incoming() {
           <label>Jumlah</label>
           <input
             type="number"
+            min="1"
             value={quantity}
             onChange={(e) => setQuantity(e.target.value)}
             style={styles.input}
@@ -89,46 +86,48 @@ export default function Incoming() {
         <button style={styles.button}>Simpan Transaksi</button>
       </form>
 
-      {/* TABLE TRANSAKSI */}
-      <h3 style={{ marginTop: 40 }}>Riwayat Transaksi Masuk</h3>
+      {/* TABLE */}
+      <div style={styles.tableWrapper}>
+        <h3>Riwayat Transaksi Masuk</h3>
 
-      <table style={styles.table}>
-        <thead>
-          <tr>
-            <th style={styles.th}>No</th>
-            <th style={styles.th}>Produk</th>
-            <th style={styles.th}>Jumlah</th>
-            <th style={styles.th}>Tanggal</th>
-            <th style={styles.th}>Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          {transactions.map((t, i) => (
-            <tr key={t.id}>
-              <td style={styles.td}>{i + 1}</td>
-              <td style={styles.td}>{t.product}</td>
-              <td style={styles.td}>{t.qty}</td>
-              <td style={styles.td}>{t.date}</td>
-              <td style={styles.td}>
-                <button
-                  style={styles.deleteBtn}
-                  onClick={() => deleteTransaction(t.id)}
-                >
-                  Hapus
-                </button>
-              </td>
-            </tr>
-          ))}
-
-          {transactions.length === 0 && (
+        <table style={styles.table}>
+          <thead>
             <tr>
-              <td colSpan="5" style={{ textAlign: 'center', padding: 20 }}>
-                Belum ada transaksi
-              </td>
+              <th style={styles.th}>No</th>
+              <th style={styles.th}>Produk</th>
+              <th style={{ ...styles.th, textAlign: 'center' }}>Jumlah</th>
+              <th style={styles.th}>Tanggal</th>
+              <th style={{ ...styles.th, textAlign: 'center' }}>Aksi</th>
             </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {transactions.map((t, i) => (
+              <tr key={t.id}>
+                <td style={styles.td}>{i + 1}</td>
+                <td style={styles.td}>{t.product}</td>
+                <td style={{ ...styles.td, textAlign: 'center' }}>{t.qty}</td>
+                <td style={styles.td}>{t.date}</td>
+                <td style={{ ...styles.td, textAlign: 'center' }}>
+                  <button
+                    style={styles.deleteBtn}
+                    onClick={() => deleteTransaction(t.id)}
+                  >
+                    Hapus
+                  </button>
+                </td>
+              </tr>
+            ))}
+
+            {transactions.length === 0 && (
+              <tr>
+                <td colSpan="5" style={styles.empty}>
+                  Belum ada transaksi
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }
@@ -138,6 +137,8 @@ export default function Incoming() {
 const styles = {
   wrapper: {
     padding: '40px',
+    background: '#f9fafb',
+    borderRadius: '16px',
     fontFamily: 'Arial, sans-serif',
   },
   subtitle: {
@@ -151,7 +152,8 @@ const styles = {
   },
 
   form: {
-    maxWidth: '400px',
+    maxWidth: '420px',
+    marginBottom: '40px',
   },
   formGroup: {
     marginBottom: '20px',
@@ -171,6 +173,11 @@ const styles = {
     cursor: 'pointer',
   },
 
+  tableWrapper: {
+    background: '#fff',
+    padding: '20px',
+    borderRadius: '12px',
+  },
   table: {
     width: '100%',
     borderCollapse: 'collapse',
@@ -191,5 +198,10 @@ const styles = {
     border: 'none',
     padding: '6px 10px',
     cursor: 'pointer',
+  },
+  empty: {
+    textAlign: 'center',
+    padding: '20px',
+    color: '#6b7280',
   },
 }

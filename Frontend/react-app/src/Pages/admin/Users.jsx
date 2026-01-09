@@ -13,9 +13,7 @@ export default function Users() {
   ])
 
   const deleteUser = (id) => {
-    const confirm = window.confirm('Apakah yakin ingin menghapus user ini?')
-    if (!confirm) return
-
+    if (!window.confirm('Apakah yakin ingin menghapus user ini?')) return
     setUsers(users.filter((u) => u.id !== id))
   }
 
@@ -24,45 +22,58 @@ export default function Users() {
       <h1>Manajemen User</h1>
       <p style={styles.subtitle}>Kelola akun pengguna dan perannya</p>
 
-      <table style={styles.table}>
-        <thead>
-          <tr>
-            <th>No</th>
-            <th>Nama</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {users.length === 0 && (
+      <div style={styles.tableWrapper}>
+        <table style={styles.table}>
+          <thead>
             <tr>
-              <td colSpan="5" style={{ textAlign: 'center' }}>
-                Tidak ada data user
-              </td>
+              <th style={styles.th}>No</th>
+              <th style={styles.th}>Nama</th>
+              <th style={styles.th}>Email</th>
+              <th style={{ ...styles.th, textAlign: 'center' }}>Role</th>
+              <th style={{ ...styles.th, textAlign: 'center' }}>Aksi</th>
             </tr>
-          )}
+          </thead>
 
-          {users.map((u, i) => (
-            <tr key={u.id}>
-              <td>{i + 1}</td>
-              <td>{u.name}</td>
-              <td>{u.email}</td>
-              <td>{u.role}</td>
-              <td>
-                <button style={styles.editBtn}>Edit</button>
-                <button
-                  style={styles.deleteBtn}
-                  onClick={() => deleteUser(u.id)}
-                >
-                  Hapus
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+          <tbody>
+            {users.length === 0 && (
+              <tr>
+                <td colSpan="5" style={styles.empty}>
+                  Tidak ada data user
+                </td>
+              </tr>
+            )}
+
+            {users.map((u, i) => (
+              <tr key={u.id}>
+                <td style={styles.td}>{i + 1}</td>
+                <td style={styles.td}>{u.name}</td>
+                <td style={styles.td}>{u.email}</td>
+                <td style={{ ...styles.td, textAlign: 'center' }}>
+                  <span
+                    style={{
+                      ...styles.roleBadge,
+                      background: u.role === 'admin' ? '#fde68a' : '#e0f2fe',
+                    }}
+                  >
+                    {u.role}
+                  </span>
+                </td>
+                <td style={styles.td}>
+                  <div style={styles.actionCell}>
+                    <button style={styles.editBtn}>Edit</button>
+                    <button
+                      style={styles.deleteBtn}
+                      onClick={() => deleteUser(u.id)}
+                    >
+                      Hapus
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }
@@ -72,29 +83,72 @@ export default function Users() {
 const styles = {
   wrapper: {
     padding: '40px',
+    background: '#f9fafb',
+    minHeight: '100vh',
     fontFamily: 'Arial, sans-serif',
   },
   subtitle: {
     color: '#6b7280',
     marginBottom: '20px',
   },
+
+  tableWrapper: {
+    background: '#ffffff',
+    padding: '20px',
+    borderRadius: '12px',
+    boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
+  },
+
   table: {
     width: '100%',
     borderCollapse: 'collapse',
   },
+
+  th: {
+    padding: '12px',
+    background: '#fef9c3',
+    borderBottom: '2px solid #e5e7eb',
+    textAlign: 'left',
+  },
+
+  td: {
+    padding: '12px',
+    borderBottom: '1px solid #e5e7eb',
+  },
+
+  empty: {
+    textAlign: 'center',
+    padding: '20px',
+    color: '#6b7280',
+  },
+
+  roleBadge: {
+    padding: '4px 10px',
+    borderRadius: '999px',
+    fontSize: '12px',
+    fontWeight: 'bold',
+    textTransform: 'capitalize',
+  },
+
+  actionCell: {
+    display: 'flex',
+    gap: '8px',
+    justifyContent: 'center',
+  },
+
   editBtn: {
-    marginRight: '10px',
-    padding: '6px 10px',
     background: '#fde68a',
     border: 'none',
-    borderRadius: '4px',
+    padding: '6px 12px',
+    borderRadius: '6px',
     cursor: 'pointer',
   },
+
   deleteBtn: {
-    padding: '6px 10px',
     background: '#fecaca',
     border: 'none',
-    borderRadius: '4px',
+    padding: '6px 12px',
+    borderRadius: '6px',
     cursor: 'pointer',
   },
 }

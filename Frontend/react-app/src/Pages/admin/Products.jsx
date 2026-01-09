@@ -3,19 +3,7 @@ import { useState } from 'react'
 const PAGE_SIZE = 10
 
 export default function Products() {
-  const [products, setProducts] = useState([
-    { id: 1, name: 'Beras', stock: 100, price: 12000 },
-    { id: 2, name: 'Gula', stock: 80, price: 14000 },
-    { id: 3, name: 'Minyak', stock: 60, price: 18000 },
-    { id: 4, name: 'Tepung', stock: 40, price: 11000 },
-    { id: 5, name: 'Telur', stock: 200, price: 25000 },
-    { id: 6, name: 'Kopi', stock: 30, price: 30000 },
-    { id: 7, name: 'Susu', stock: 70, price: 16000 },
-    { id: 8, name: 'Garam', stock: 90, price: 6000 },
-    { id: 9, name: 'Mentega', stock: 25, price: 22000 },
-    { id: 10, name: 'Keju', stock: 15, price: 35000 },
-    { id: 11, name: 'Teh', stock: 55, price: 9000 },
-  ])
+  const [products, setProducts] = useState([])
 
   const [search, setSearch] = useState('')
   const [filterStock, setFilterStock] = useState('all')

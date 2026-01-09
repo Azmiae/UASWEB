@@ -2,32 +2,58 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import warehouseImg from '../assets/d-industries.png'
 
-export default function Login() {
+const ADMIN_CODE = 'ADMIN123' // kode admin (simulasi)
+
+export default function Signup() {
+  const navigate = useNavigate()
+
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const navigate = useNavigate()
+  const [role, setRole] = useState('staff')
+  const [adminCode, setAdminCode] = useState('')
+  const [error, setError] = useState('')
 
   const submit = (e) => {
     e.preventDefault()
+    setError('')
 
-    // SIMULASI LOGIN (FRONTEND)
-    if (email === 'admin@test.com') {
-      navigate('/admin')
-    } else {
-      navigate('/staff')
+    if (!name || !email || !password) {
+      setError('Semua field wajib diisi')
+      return
     }
+
+    if (role === 'admin' && adminCode !== ADMIN_CODE) {
+      setError('Kode admin tidak valid')
+      return
+    }
+
+    // SIMULASI REGISTER BERHASIL
+    alert('Registrasi berhasil, silakan login')
+    navigate('/')
   }
 
   return (
     <div style={styles.wrapper}>
       {/* LEFT - FORM */}
       <div style={styles.left}>
-        <h1 style={styles.title}>Login</h1>
+        <h1 style={styles.title}>Sign Up</h1>
         <p style={styles.subtitle}>
-          Silahkan input username dan password untuk login
+          Buat akun untuk mengakses sistem manajemen gudang
         </p>
 
+        {error && <p style={styles.error}>{error}</p>}
+
         <form onSubmit={submit}>
+          <div style={styles.formGroup}>
+            <label>Nama Lengkap</label>
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              style={styles.input}
+            />
+          </div>
+
           <div style={styles.formGroup}>
             <label>Email</label>
             <input
@@ -48,20 +74,36 @@ export default function Login() {
             />
           </div>
 
-          <div style={styles.option}>
-            <label>
-              <input type="checkbox" /> Ingat saya
-            </label>
-            <span style={styles.link}>Lupa Kata Sandi?</span>
+          <div style={styles.formGroup}>
+            <label>Role</label>
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              style={styles.input}
+            >
+              <option value="staff">Staff</option>
+              <option value="admin">Admin</option>
+            </select>
           </div>
 
-          <button style={styles.button}>Login</button>
+          {role === 'admin' && (
+            <div style={styles.formGroup}>
+              <label>Kode Admin</label>
+              <input
+                value={adminCode}
+                onChange={(e) => setAdminCode(e.target.value)}
+                style={styles.input}
+              />
+            </div>
+          )}
+
+          <button style={styles.button}>Daftar</button>
         </form>
 
         <p style={styles.register}>
-          Belum punya akun?{' '}
-          <span style={styles.link} onClick={() => navigate('/signup')}>
-            Register disini
+          Sudah punya akun?{' '}
+          <span style={styles.link} onClick={() => navigate('/')}>
+            Login disini
           </span>
         </p>
       </div>
@@ -84,7 +126,7 @@ export default function Login() {
   )
 }
 
-/* ================= STYLE ================= */
+/* ================= STYLE (SAMA DENGAN LOGIN) ================= */
 
 const DARK = '#1f2937'
 
@@ -107,11 +149,16 @@ const styles = {
     marginBottom: '10px',
   },
   subtitle: {
-    marginBottom: '40px',
+    marginBottom: '30px',
     color: '#6b7280',
   },
-  formGroup: {
+  error: {
+    color: '#b91c1c',
     marginBottom: '20px',
+    fontWeight: 'bold',
+  },
+  formGroup: {
+    marginBottom: '18px',
   },
   input: {
     width: '100%',
@@ -120,12 +167,6 @@ const styles = {
     border: '2px solid #facc15',
     outline: 'none',
     marginTop: '6px',
-  },
-  option: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    marginBottom: '30px',
-    fontSize: '14px',
   },
   link: {
     color: '#ca8a04',
@@ -141,6 +182,7 @@ const styles = {
     fontSize: '16px',
     fontWeight: 'bold',
     cursor: 'pointer',
+    marginTop: '10px',
   },
   register: {
     marginTop: '30px',
