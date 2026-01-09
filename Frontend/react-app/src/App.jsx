@@ -1,8 +1,9 @@
 import { Routes, Route } from 'react-router-dom'
 import Login from './Pages/Login'
-
+import Signup from './Pages/signup'
 import Layout from './Layout'
 
+// ADMIN
 import DashboardAdmin from './Pages/admin/DashboardAdmin'
 import Products from './Pages/admin/Products'
 import Incoming from './Pages/admin/Incoming'
@@ -10,15 +11,17 @@ import Outgoing from './Pages/admin/Outgoing'
 import Transactions from './Pages/admin/Transactions'
 import Users from './Pages/admin/Users'
 
+// STAFF
 import DashboardStaff from './Pages/staff/DashboardStaff'
 
 export default function App() {
   return (
     <Routes>
-      {/* LOGIN TANPA SIDEBAR */}
+      {/* ================= AUTH (TANPA SIDEBAR) ================= */}
       <Route path="/" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
 
-      {/* SEMUA HALAMAN DENGAN SIDEBAR */}
+      {/* ================= ADMIN & STAFF (PAKAI SIDEBAR) ================= */}
       <Route element={<Layout />}>
         {/* ADMIN */}
         <Route path="/admin" element={<DashboardAdmin />} />
