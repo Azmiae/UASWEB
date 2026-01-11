@@ -13,11 +13,25 @@ router.post(
   transaksiController.masuk
 );
 
-module.exports = router;
-
 router.post(
     '/keluar',
     authmiddleware,
     authorizeRole('staff', 'admin'),
     transaksiController.keluar 
 );
+
+router.get(
+    '/',
+    authmiddleware,
+    authorizeRole('staff','admin'),
+    transaksiController.getTransactions
+);
+
+router.delete(
+    '/delete/:id',
+    authmiddleware,
+    authorizeRole('admin'),
+    transaksiController.deleteTransaksi
+)
+
+module.exports = router;
