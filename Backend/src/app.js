@@ -10,7 +10,7 @@ const productRoute = require('./routes/productRoute');
 const transactionRoute = require('./routes/transactionRoute');
 
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: true,
   credentials : true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders:['Content-Type', 'Authorization']

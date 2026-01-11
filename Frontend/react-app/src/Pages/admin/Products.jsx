@@ -1,54 +1,81 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import api from '../../api/axios'
 
 const PAGE_SIZE = 10
 
+
 export default function Products() {
   const [products, setProducts] = useState([])
-
   const [search, setSearch] = useState('')
   const [filterStock, setFilterStock] = useState('all')
   const [page, setPage] = useState(1)
   const [showForm, setShowForm] = useState(false)
   const [editingProduct, setEditingProduct] = useState(null)
+  const role = localStorage.getItem('role')
+  const isAdmin = role === 'admin'
 
-  /* SEARCH + FILTER */
-  const filteredProducts = products.filter((p) => {
-    const matchName = p.name.toLowerCase().includes(search.toLowerCase())
 
-    const matchStock =
-      filterStock === 'all'
-        ? true
-        : filterStock === 'low'
-        ? p.stock < 50
-        : p.stock >= 50
+  
 
-    return matchName && matchStock
-  })
+const fetchProducts = async () => {
+  const res = await api.get('/product')
+  setProducts(res.data.products)
+  
+}
+useEffect(() => {
+  fetchProducts()
+}, [])
 
-  /* PAGINATION */
-  const totalPages = Math.ceil(filteredProducts.length / PAGE_SIZE)
+/* FILTER */
+const filteredProducts = products.filter((p) => {
+  const matchName = p.name.toLowerCase().includes(search.toLowerCase())
 
-  const paginatedProducts = filteredProducts.slice(
-    (page - 1) * PAGE_SIZE,
-    page * PAGE_SIZE
-  )
+  const matchStock =
+    filterStock === 'all'
+      ? true
+      : filterStock === 'low'
+      ? p.stock < 50
+      : p.stock >= 50
 
-  /* CRUD */
-  const deleteProduct = (id) => {
-    if (!window.confirm('Hapus produk ini?')) return
-    setProducts(products.filter((p) => p.id !== id))
-  }
+  return matchName && matchStock
+})
 
-  const saveProduct = (product) => {
+/* PAGINATION */
+const totalPages = Math.ceil(filteredProducts.length / PAGE_SIZE)
+
+const paginatedProducts = filteredProducts.slice(
+  (page - 1) * PAGE_SIZE,
+  page * PAGE_SIZE
+)
+
+const deleteProduct = async (id) => {
+  if (!window.confirm('Hapus produk ini?')) return
+  await api.delete(`/product/${id}`)
+  fetchProducts()
+}
+
+const saveProduct = async (product) => {
+  try {
     if (editingProduct) {
-      setProducts(products.map((p) => (p.id === product.id ? product : p)))
+      await api.put(`/product/${editingProduct.id}`, {
+        name: product.name,
+        stock: product.stock,
+        price: product.price,
+      })
     } else {
-      setProducts([...products, { ...product, id: Date.now() }])
+      await api.post('/product', product)
     }
+
+    await fetchProducts()
     setShowForm(false)
     setEditingProduct(null)
+  } catch (err) {
+    console.error('SAVE PRODUCT FAILED', err.response?.data || err)
+    alert('Gagal menyimpan produk')
   }
+}
 
+  // ====== JSX RETURN DI SINI ======
   return (
     <div style={styles.wrapper}>
       <h1>Manajemen Produk</h1>
@@ -78,7 +105,7 @@ export default function Products() {
           <option value="low">Stok Rendah</option>
           <option value="high">Stok Aman</option>
         </select>
-
+        {isAdmin &&(
         <button
           style={styles.addBtn}
           onClick={() => {
@@ -88,6 +115,7 @@ export default function Products() {
         >
           + Tambah Produk
         </button>
+        )}
       </div>
 
       {/* TABLE */}
@@ -113,10 +141,11 @@ export default function Products() {
                 <td style={{ ...styles.td, ...styles.center }}>{p.stock}</td>
 
                 <td style={{ ...styles.td, ...styles.right }}>
-                  Rp {p.price.toLocaleString('id-ID')}
+                  Rp {(p.price?? 0).toLocaleString('id-ID')}
                 </td>
 
                 <td style={styles.td}>
+                  {isAdmin?(
                   <div style={styles.actionCell}>
                     <button
                       style={styles.editBtn}
@@ -133,7 +162,8 @@ export default function Products() {
                     >
                       Hapus
                     </button>
-                  </div>
+                  </div>):(
+                    <span style ={{ color: '#9ca3af' }}>Read Only</span>)}
                 </td>
               </tr>
             ))}
@@ -168,7 +198,7 @@ export default function Products() {
         </div>
       </div>
 
-      {showForm && (
+      {showForm && isAdmin &&(
         <ProductForm
           product={editingProduct}
           onClose={() => setShowForm(false)}
@@ -190,7 +220,6 @@ function ProductForm({ product, onClose, onSave }) {
     if (!name || stock <= 0 || price <= 0) return
 
     onSave({
-      id: product?.id,
       name,
       stock: Number(stock),
       price: Number(price),

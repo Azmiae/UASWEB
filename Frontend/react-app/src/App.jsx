@@ -1,11 +1,11 @@
 import { Routes, Route } from 'react-router-dom'
 import Login from './Pages/Login'
 import Signup from './Pages/signup'
-import Layout from './Layout'
 import RequireAuth from './auth/RequireAuth'
 import AdminRoute from './auth/RequireAdmin'
 
 // ADMIN
+import LayoutAdmin from './Layoutadmin'
 import DashboardAdmin from './Pages/admin/DashboardAdmin'
 import Products from './Pages/admin/Products'
 import Incoming from './Pages/admin/Incoming'
@@ -15,6 +15,7 @@ import Users from './Pages/admin/Users'
 
 // STAFF
 import DashboardStaff from './Pages/staff/DashboardStaff'
+import LayoutStaff from './LayoutStaff'
 
 export default function App() {
   return (
@@ -25,7 +26,7 @@ export default function App() {
 
       {/* ADMIN */}
       <Route element={<RequireAuth allowedRoles={['admin']} />}>
-        <Route element={<Layout />}>
+        <Route element={<LayoutAdmin />}>
           <Route path="/admin" element={<DashboardAdmin />} />
           <Route path="/admin/products" element={<Products />} />
           <Route path="/admin/incoming" element={<Incoming />} />
@@ -37,8 +38,9 @@ export default function App() {
 
       {/* STAFF */}
       <Route element={<RequireAuth allowedRoles={['staff']} />}>
-        <Route element={<Layout />}>
+        <Route element={<LayoutStaff />}>
           <Route path="/staff" element={<DashboardStaff />} />
+          <Route path = "/staff/products" element={<Products />}/>
         </Route>
       </Route>
     </Routes>

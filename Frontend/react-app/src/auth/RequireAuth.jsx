@@ -8,9 +8,10 @@ export default function RequireAuth({ allowedRoles }) {
     return <Navigate to="/" replace />
   }
 
-  if (!allowedRoles.includes(role)) {
+  if (allowedRoles && !allowedRoles.includes(role)) {
     return <Navigate to="/" replace />
   }
-
+  console.log('ROLE:',role)
+  console.log('ALLOWED:', allowedRoles)
   return <Outlet />
 }
