@@ -1,3 +1,5 @@
+const cors = require('cors')
+
 const express = require('express');
 
 const app = express();
@@ -7,9 +9,15 @@ const userRoute = require('./routes/userRoute');
 const productRoute = require('./routes/productRoute');
 const transactionRoute = require('./routes/transactionRoute');
 
-
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials : true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders:['Content-Type', 'Authorization']
+}))
 //Basic Middleware
 app.use(express.json());
+
 
 //rute Middleware
 app.use('/api/auth', authRoute);

@@ -32,7 +32,7 @@ export default function Layout() {
       <aside style={styles.sidebar}>
         {/* TOP */}
         <div>
-          <h1 style={styles.logo}>GudangApp</h1>
+          <h1 style={styles.logo}>Gudang</h1>
 
           <nav style={styles.menu}>
             {menu.map((m) => (

@@ -2,6 +2,8 @@ import { Routes, Route } from 'react-router-dom'
 import Login from './Pages/Login'
 import Signup from './Pages/signup'
 import Layout from './Layout'
+import RequireAuth from './auth/RequireAuth'
+import AdminRoute from './auth/RequireAdmin'
 
 // ADMIN
 import DashboardAdmin from './Pages/admin/DashboardAdmin'
@@ -17,22 +19,27 @@ import DashboardStaff from './Pages/staff/DashboardStaff'
 export default function App() {
   return (
     <Routes>
-      {/* ================= AUTH (TANPA SIDEBAR) ================= */}
+      {/* AUTH */}
       <Route path="/" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
 
-      {/* ================= ADMIN & STAFF */}
-      <Route element={<Layout />}>
-        {/* ADMIN */}
-        <Route path="/admin" element={<DashboardAdmin />} />
-        <Route path="/admin/products" element={<Products />} />
-        <Route path="/admin/incoming" element={<Incoming />} />
-        <Route path="/admin/outgoing" element={<Outgoing />} />
-        <Route path="/admin/transactions" element={<Transactions />} />
-        <Route path="/admin/users" element={<Users />} />
+      {/* ADMIN */}
+      <Route element={<RequireAuth allowedRoles={['admin']} />}>
+        <Route element={<Layout />}>
+          <Route path="/admin" element={<DashboardAdmin />} />
+          <Route path="/admin/products" element={<Products />} />
+          <Route path="/admin/incoming" element={<Incoming />} />
+          <Route path="/admin/outgoing" element={<Outgoing />} />
+          <Route path="/admin/transactions" element={<Transactions />} />
+          <Route path="/admin/users" element={<Users />} />
+        </Route>
+      </Route>
 
-        {/* STAFF */}
-        <Route path="/staff" element={<DashboardStaff />} />
+      {/* STAFF */}
+      <Route element={<RequireAuth allowedRoles={['staff']} />}>
+        <Route element={<Layout />}>
+          <Route path="/staff" element={<DashboardStaff />} />
+        </Route>
       </Route>
     </Routes>
   )

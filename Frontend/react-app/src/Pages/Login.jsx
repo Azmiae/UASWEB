@@ -1,25 +1,43 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { loginRequest } from '../api/auth'
+import api from '../api/axios'
 import warehouseImg from '../assets/d-industries.png'
 
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
   const navigate = useNavigate()
 
-  const submit = (e) => {
-    e.preventDefault()
+ const submit = async (e) => {
+  e.preventDefault()
 
-    if (email === 'admin@test.com') {
-      localStorage.setItem('role', 'admin')
-      localStorage.setItem('name', 'Admin')
+  try {
+    const res = await api.post('/auth/login', {
+      email,
+      password
+    })
+
+    const token = res.data.token
+    if (!token) throw new Error('Token tidak ada')
+
+    const payload = JSON.parse(atob(token.split('.')[1]))
+
+    localStorage.setItem('token', token)
+    localStorage.setItem('role', payload.role)
+
+    if (payload.role === 'admin') {
       navigate('/admin', { replace: true })
     } else {
-      localStorage.setItem('role', 'staff')
-      localStorage.setItem('name', 'Staff')
       navigate('/staff', { replace: true })
     }
+  } catch (err) {
+    console.error(err)
+    alert('Login gagal')
   }
+}
+
 
   return (
     <div style={styles.wrapper}>
