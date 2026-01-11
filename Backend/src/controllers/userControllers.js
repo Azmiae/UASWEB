@@ -1,4 +1,6 @@
 const User = require('../models/User');
+const bcrypt = require('bcryptjs');
+const allowedFields =['email'];
 
 const getProfile = async (req, res) => {
   const user = await User.findByPk(req.user.id, {
@@ -10,23 +12,66 @@ const getProfile = async (req, res) => {
 };
 
 const getAllUsers = async (req, res) => {
-    const { page = 1, limit = 5, role} = req.query;
+  try {
+    const { page = 1, limit = 10, role } = req.query;
 
-    const where ={};
-    if (role) {where.role = role;
-    
-    const users = await User.findAndCountAll({
-        where,
-        attributes: ['id', 'email', 'role'],
-        limit: parseInt(limit),
-        offset: (page - 1) * limit,
+    const offset = (page - 1) * limit;
+    const where = role ? { role } : {};
+
+    const { count, rows } = await User.findAndCountAll({
+      where,
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      attributes: ['id', 'email', 'role']
     });
 
-    res.json({
-        total: users.count,
-        page: parseInt(page),
-        data: users.rows
+    return res.json({
+      total: count,
+      page: parseInt(page),
+      users: rows
     });
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      message: 'Gagal mengambil data user',
+      error: err.message
+    });
+  }
 };
-}
-module.exports = { getProfile, getAllUsers };
+
+
+const updateProfile = async (req, res) => {
+    try{
+    const update = {};
+
+    for (let key of allowedFields) {
+        if (req.body[key]) update[key] = req.body[key];
+    }
+
+    await User.update(update,{
+        where: {id: req.user.id}
+    });
+
+    res.status(200).json({
+        message : 'Profile Updated'})
+    } catch (err){        
+        res.status(500).json({ message: 'Gagal update profile' });
+    }
+};
+
+    const gantipassword = async(req,res) => {
+        const {oldPassword, newPassword } = req.body;
+        const user = await User.findByPk(req.user.id);
+        const match = await bcrypt.compare(oldPassword, user.password);
+
+        if (!match){
+            return res.status(400).json({ message: 'Password lama salah' });
+        }
+        const hashedPassword = await bcrypt.hash(newPassword,10);
+        await user.update({ password: hashedPassword },
+        );
+        
+        res.json({message: 'Password lama berhasil diubah'});
+    };
+module.exports = { getProfile, getAllUsers, updateProfile, gantipassword };

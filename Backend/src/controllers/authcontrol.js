@@ -11,7 +11,7 @@ const register = async(req, res) =>{
         })
     }
 
-    let role = null;
+    let role;
 
     if (key === process.env.ADMIN_KEY) {
         role = 'admin';
