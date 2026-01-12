@@ -1,4 +1,4 @@
-const {Product, Transaction} = require('../models');
+const {Product, Transaction, User} = require('../models');
 
 exports.masuk = async (req, res) => {
   const { productId, quantity } = req.body;
@@ -63,17 +63,17 @@ exports.keluar = async (req, res) => {
 };
 
 exports.getTransactions = async (req, res) => {
-    const data = await Transaction.findAll({
-        include: {
-        model: Product,
-        attributes: ['id','name']
-        },
-        order:[['createdAt','DESC']]
-    });
-    res.json({
-        data
-    });
+  const data = await Transaction.findAll({
+    include: [
+      { model: Product, attributes: ['name'] },
+      { model: User, attributes: ['name','role'] }
+    ],
+    order: [['createdAt','DESC']]
+  })
+
+  res.json({ transactions: data })
 }
+
 
 exports.deleteTransaksi = async (req, res) => {
   const { id } = req.params;

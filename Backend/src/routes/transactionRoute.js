@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 
-const authMiddleware = require('../middleware/authmiddleware');
 const authorizeRole = require('../middleware/rolemiddleware');
 const transaksiController = require('../controllers/transaksiController');
 const authmiddleware = require('../middleware/authmiddleware');
@@ -33,5 +32,4 @@ router.delete(
     authorizeRole('admin'),
     transaksiController.deleteTransaksi
 )
-
 module.exports = router;
