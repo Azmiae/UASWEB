@@ -1,64 +1,50 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import api from '../../api/axios'
 
 export default function Outgoing() {
-  const [products, setProducts] = useState([
-    { id: 1, name: 'Beras', stock: 100 },
-    { id: 2, name: 'Gula', stock: 80 },
-    { id: 3, name: 'Minyak', stock: 60 },
-  ])
-
-  const [transactions, setTransactions] = useState([])
-
+  const [products, setProducts] = useState([])
   const [productId, setProductId] = useState('')
   const [quantity, setQuantity] = useState('')
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
 
-  const submit = (e) => {
+  useEffect(() => {
+    api.get('/product').then(res => {
+      setProducts(res.data.products)
+    })
+  }, [])
+
+  const submit = async (e) => {
     e.preventDefault()
     setMessage('')
     setError('')
 
-    if (!productId || quantity <= 0) {
+    try {
+      if (!productId || quantity <= 0) {
       setError('Data transaksi tidak valid')
       return
+}
+
+      await api.post('/transaksi/keluar', {
+        productId: Number(productId),
+        quantity: Number(quantity),
+      })
+
+      setMessage('Transaksi keluar berhasil')
+      setProductId('')
+      setQuantity('')
+
+      const res = await api.get('/product')
+      setProducts(res.data.products)
+    } catch (err) {
+      if (err.response?.status === 403) {
+        setError('Stok tidak mencukupi')
+      } else {
+        setError('Gagal menyimpan transaksi')
+      }
     }
-
-    const product = products.find((p) => p.id === Number(productId))
-
-    // VALIDASI STOK
-    if (product.stock < Number(quantity)) {
-      setError('Stok tidak mencukupi')
-      return
-    }
-
-    // update stok (dikurangi)
-    setProducts(
-      products.map((p) =>
-        p.id === product.id ? { ...p, stock: p.stock - Number(quantity) } : p
-      )
-    )
-
-    // simpan transaksi
-    setTransactions([
-      ...transactions,
-      {
-        id: Date.now(),
-        product: product.name,
-        qty: Number(quantity),
-        date: new Date().toLocaleDateString('id-ID'),
-      },
-    ])
-
-    setMessage('Transaksi barang keluar berhasil')
-    setQuantity('')
-    setProductId('')
   }
 
-  const deleteTransaction = (id) => {
-    if (!window.confirm('Hapus transaksi ini?')) return
-    setTransactions(transactions.filter((t) => t.id !== id))
-  }
 
   return (
     <div style={styles.wrapper}>
@@ -98,47 +84,6 @@ export default function Outgoing() {
 
         <button style={styles.button}>Simpan Transaksi</button>
       </form>
-
-      {/* TABLE */}
-      <h3 style={{ marginTop: 40 }}>Riwayat Transaksi Keluar</h3>
-
-      <table style={styles.table}>
-        <thead>
-          <tr>
-            <th style={styles.th}>No</th>
-            <th style={styles.th}>Produk</th>
-            <th style={styles.th}>Jumlah</th>
-            <th style={styles.th}>Tanggal</th>
-            <th style={styles.th}>Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          {transactions.map((t, i) => (
-            <tr key={t.id}>
-              <td style={styles.td}>{i + 1}</td>
-              <td style={styles.td}>{t.product}</td>
-              <td style={styles.td}>{t.qty}</td>
-              <td style={styles.td}>{t.date}</td>
-              <td style={styles.td}>
-                <button
-                  style={styles.deleteBtn}
-                  onClick={() => deleteTransaction(t.id)}
-                >
-                  Hapus
-                </button>
-              </td>
-            </tr>
-          ))}
-
-          {transactions.length === 0 && (
-            <tr>
-              <td colSpan="5" style={{ textAlign: 'center', padding: 20 }}>
-                Belum ada transaksi
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
     </div>
   )
 }
