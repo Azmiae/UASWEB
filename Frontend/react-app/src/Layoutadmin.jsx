@@ -12,12 +12,12 @@ export default function Layout() {
 
   /* ===== MENU (ADMIN) ===== */
   const menu = [
-    { label: 'Dashboard', path: '/admin' },
-    { label: 'Manajemen Produk', path: '/admin/products' },
-    { label: 'Transaksi Masuk', path: '/admin/incoming' },
-    { label: 'Transaksi Keluar', path: '/admin/outgoing' },
-    { label: 'Manajemen User', path: '/admin/users' },
-    { label: 'Riwayat Transaksi', path: '/admin/transactions' },
+    { label: 'Dashboard', short: 'DS', path: '/admin' },
+    { label: 'Manajemen Produk', short: 'PR', path: '/admin/products' },
+    { label: 'Transaksi Masuk', short: 'IN', path: '/admin/incoming' },
+    { label: 'Transaksi Keluar', short: 'OUT', path: '/admin/outgoing' },
+    { label: 'Manajemen User', short: 'US', path: '/admin/users' },
+    { label: 'Riwayat Transaksi', short: 'TR', path: '/admin/transactions' },
   ]
 
   /* ===== LOGOUT ===== */
@@ -32,11 +32,11 @@ export default function Layout() {
       <aside style={styles.sidebar}>
         {/* TOP */}
         <div>
-          <h1 style={styles.logo}>Gudang</h1>
+          <div style={styles.brand}><div style={styles.brandMark}>G</div><div><h1 style={styles.logo}>Gudang</h1><span style={styles.brandSub}>OPERATIONS</span></div></div>
 
           <nav style={styles.menu}>
             {menu.map((m) => (
-              <div
+              <button
                 key={m.path}
                 onClick={() => navigate(m.path)}
                 style={{
@@ -44,8 +44,8 @@ export default function Layout() {
                   ...(location.pathname === m.path ? styles.menuActive : {}),
                 }}
               >
-                {m.label}
-              </div>
+                <span style={styles.menuCode}>{m.short}</span><span>{m.label}</span>
+              </button>
             ))}
           </nav>
         </div>
@@ -88,46 +88,58 @@ const styles = {
   wrapper: {
     display: 'flex',
     minHeight: '100vh',
-    fontFamily: 'Inter, Arial, sans-serif',
+    fontFamily: 'Arial, sans-serif',
   },
 
   /* SIDEBAR */
   sidebar: {
-    width: '260px',
-    background: '#fef9c3',
-    padding: '32px 24px',
+    width: '248px',
+    background: '#17352a',
+    padding: '28px 18px 22px',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
-    borderRight: '1px solid #fde68a',
+    borderRight: '1px solid #25523f',
   },
 
+  brand: { display: 'flex', alignItems: 'center', gap: '11px', marginBottom: '42px' },
+  brandMark: { width: '36px', height: '36px', borderRadius: '7px', background: '#d9eddf', color: '#17352a', display: 'grid', placeItems: 'center', fontFamily: 'Georgia, serif', fontSize: '23px', fontWeight: '700' },
   logo: {
-    fontSize: '26px',
+    fontSize: '22px',
     fontWeight: '700',
-    color: '#ca8a04',
-    marginBottom: '36px',
+    color: '#f2f7f3',
+    margin: 0,
   },
+  brandSub: { color: '#91b19e', fontSize: '8px', letterSpacing: '2px', fontWeight: '700' },
 
   menu: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '14px',
+    gap: '6px',
   },
 
   menuItem: {
-    padding: '10px 14px',
-    borderRadius: '8px',
+    width: '100%',
+    boxSizing: 'border-box',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    padding: '11px 12px',
+    borderRadius: '6px',
+    border: '0',
+    background: 'transparent',
+    textAlign: 'left',
     cursor: 'pointer',
     fontSize: '15px',
-    color: '#374151',
+    color: '#b5cabc',
   },
 
   menuActive: {
-    background: '#fde68a',
+    background: '#d9eddf',
     fontWeight: '600',
-    color: '#92400e',
+    color: '#17352a',
   },
+  menuCode: { width: '25px', fontSize: '10px', fontWeight: '700', letterSpacing: '0.5px', opacity: 0.7 },
 
   /* PROFILE */
   profileWrapper: {
@@ -140,29 +152,30 @@ const styles = {
     gap: '12px',
     cursor: 'pointer',
     paddingTop: '20px',
-    borderTop: '1px solid #fde68a',
+    borderTop: '1px solid #25523f',
   },
 
   avatar: {
     width: '44px',
     height: '44px',
     borderRadius: '50%',
-    background: '#facc15',
+    background: '#d9eddf',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     fontWeight: 'bold',
-    color: '#92400e',
+    color: '#17352a',
   },
 
   profileName: {
     fontWeight: '600',
     fontSize: '15px',
+    color: '#f2f7f3',
   },
 
   profileRole: {
     fontSize: '12px',
-    color: '#6b7280',
+    color: '#91b19e',
   },
 
   profileMenu: {
@@ -172,7 +185,7 @@ const styles = {
     width: '180px',
     background: '#ffffff',
     borderRadius: '10px',
-    boxShadow: '0 8px 20px rgba(0,0,0,0.1)',
+    boxShadow: '0 12px 30px rgba(0,0,0,0.2)',
     overflow: 'hidden',
   },
 
@@ -186,7 +199,7 @@ const styles = {
   /* CONTENT */
   content: {
     flex: 1,
-    background: '#f9fafb',
-    padding: '40px',
+    background: '#f5f7f6',
+    padding: '32px 38px',
   },
 }
