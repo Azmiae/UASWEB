@@ -34,6 +34,12 @@ button {
   cursor: pointer;
 }
 
+@media (max-width: 760px) {
+  #root {
+    overflow-x: hidden;
+  }
+}
+
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
