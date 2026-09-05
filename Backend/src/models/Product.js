@@ -8,7 +8,13 @@ const Product = sequelize.define('Product', {
   },
   stock: {
     type: DataTypes.INTEGER,
-    defaultValue: 0
+    defaultValue: 0,
+    validate: { min: 0, isInt: true }
+  },
+  price: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
+    validate: { min: 0, isInt: true }
   }
 }, {
   tableName: 'products',

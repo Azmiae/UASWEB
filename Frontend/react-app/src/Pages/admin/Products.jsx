@@ -11,6 +11,8 @@ export default function Products() {
   const [page, setPage] = useState(1)
   const [showForm, setShowForm] = useState(false)
   const [editingProduct, setEditingProduct] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const role = localStorage.getItem('role')
   const isAdmin = role === 'admin'
 
@@ -18,9 +20,16 @@ export default function Products() {
   
 
 const fetchProducts = async () => {
-  const res = await api.get('/product')
-  setProducts(res.data.products)
-  
+  try {
+    setLoading(true)
+    setError('')
+    const res = await api.get('/product')
+    setProducts(res.data.products || [])
+  } catch {
+    setError('Produk belum bisa dimuat. Coba lagi.')
+  } finally {
+    setLoading(false)
+  }
 }
 useEffect(() => {
   fetchProducts()
@@ -42,6 +51,10 @@ const filteredProducts = products.filter((p) => {
 
 /* PAGINATION */
 const totalPages = Math.ceil(filteredProducts.length / PAGE_SIZE)
+
+useEffect(() => {
+  if (totalPages > 0 && page > totalPages) setPage(totalPages)
+}, [page, totalPages])
 
 const paginatedProducts = filteredProducts.slice(
   (page - 1) * PAGE_SIZE,
@@ -78,20 +91,35 @@ const saveProduct = async (product) => {
   // ====== JSX RETURN DI SINI ======
   return (
     <div style={styles.wrapper}>
-      <h1>Manajemen Produk</h1>
-      <p style={styles.subtitle}>Kelola data produk gudang</p>
+      <div style={styles.header}>
+        <div>
+          <p style={styles.eyebrow}>INVENTORI / PRODUK</p>
+          <h1 style={styles.title}>Manajemen Produk</h1>
+          <p style={styles.subtitle}>Pantau ketersediaan dan harga barang gudang.</p>
+        </div>
+        <strong style={styles.headerMark}>GUDANG <span>01</span></strong>
+      </div>
+
+      <div style={styles.stats}>
+        <div style={styles.statCard}><span>Total produk</span><strong>{products.length}</strong><small>item terdaftar</small></div>
+        <div style={styles.statCard}><span>Total stok</span><strong>{products.reduce((sum, p) => sum + Number(p.stock || 0), 0).toLocaleString('id-ID')}</strong><small>unit tersedia</small></div>
+        <div style={{ ...styles.statCard, ...styles.warningCard }}><span>Stok rendah</span><strong>{products.filter((p) => p.stock < 50).length}</strong><small>perlu diperhatikan</small></div>
+      </div>
 
       {/* ACTION */}
       <div style={styles.actionBar}>
-        <input
-          placeholder="Cari produk..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value)
-            setPage(1)
-          }}
-          style={styles.search}
-        />
+        <div style={styles.searchWrap}>
+          <span style={styles.searchIcon}>⌕</span>
+          <input
+            placeholder="Cari produk..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value)
+              setPage(1)
+            }}
+            style={styles.search}
+          />
+        </div>
 
         <select
           value={filterStock}
@@ -120,6 +148,7 @@ const saveProduct = async (product) => {
 
       {/* TABLE */}
       <div style={styles.tableWrapper}>
+        {error && <div style={styles.error}>{error} <button onClick={fetchProducts}>Coba lagi</button></div>}
         <table style={styles.table}>
           <thead>
             <tr>
@@ -132,7 +161,8 @@ const saveProduct = async (product) => {
           </thead>
 
           <tbody>
-            {paginatedProducts.map((p, i) => (
+            {loading && <tr><td colSpan="5" style={styles.empty}>Memuat data produk...</td></tr>}
+            {!loading && paginatedProducts.map((p, i) => (
               <tr key={p.id}>
                 <td style={styles.td}>{(page - 1) * PAGE_SIZE + i + 1}</td>
 
@@ -168,7 +198,7 @@ const saveProduct = async (product) => {
               </tr>
             ))}
 
-            {paginatedProducts.length === 0 && (
+            {!loading && paginatedProducts.length === 0 && (
               <tr>
                 <td
                   colSpan="5"
@@ -263,33 +293,48 @@ function ProductForm({ product, onClose, onSave }) {
 /* STYLE */
 const styles = {
   wrapper: {
-    padding: '40px',
-    background: '#f9fafb',
+    padding: '12px 28px 40px',
+    background: '#f5f7f6',
     minHeight: '100vh',
-    fontFamily: 'Arial, sans-serif',
+    color: '#17221d',
+  },
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '28px' },
+  eyebrow: { margin: '0 0 8px', color: '#75847b', fontFamily: 'Arial, sans-serif', fontSize: '11px', fontWeight: '700', letterSpacing: '2px' },
+  title: { margin: 0, fontSize: 'clamp(2rem, 4vw, 3.2rem)', lineHeight: 1.05, letterSpacing: '-1px' },
+  headerMark: { color: '#236b4a', fontFamily: 'Arial, sans-serif', fontSize: '13px', letterSpacing: '1px' },
+  stats: { display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '14px', marginBottom: '22px' },
+  statCard: { background: '#fff', border: '1px solid #e0e8e2', borderRadius: '8px', padding: '18px 20px', display: 'grid', gap: '4px', fontFamily: 'Arial, sans-serif' },
+  warningCard: { background: '#fffaf0', borderColor: '#f0d9a5' },
+  empty: { textAlign: 'center', padding: '36px', color: '#75847b', fontFamily: 'Arial, sans-serif' },
+  error: { background: '#fff1f0', color: '#a33a32', padding: '12px 14px', marginBottom: '14px', borderRadius: '6px', fontFamily: 'Arial, sans-serif', fontSize: '13px' },
+  searchWrap: { position: 'relative', display: 'flex', alignItems: 'center' },
+  searchIcon: { position: 'absolute', left: '12px', color: '#75847b', fontSize: '21px', zIndex: 1 },
+  search: { padding: '12px 12px 12px 38px', width: '220px', border: '1px solid #d6e0d9', borderRadius: '5px', fontSize: '14px', outlineColor: '#236b4a' },
+  filter: { padding: '12px', border: '1px solid #d6e0d9', borderRadius: '5px', background: '#fff', color: '#34443a' },
+  tableWrapper: {
+    background: '#fff',
+    padding: '8px 18px 18px',
+    borderRadius: '8px',
+    border: '1px solid #e0e8e2',
   },
   subtitle: {
     color: '#6b7280',
     marginBottom: '20px',
+    fontFamily: 'Arial, sans-serif',
   },
   actionBar: {
     display: 'flex',
+    flexWrap: 'wrap',
     gap: '12px',
     marginBottom: '20px',
   },
-  search: { padding: '10px', width: '220px' },
-  filter: { padding: '10px' },
   addBtn: {
-    background: '#facc15',
+    background: '#236b4a',
+    color: '#fff',
     border: 'none',
     padding: '10px 16px',
     borderRadius: '6px',
     fontWeight: 'bold',
-  },
-  tableWrapper: {
-    background: '#fff',
-    padding: '20px',
-    borderRadius: '12px',
   },
   table: {
     width: '100%',
@@ -297,13 +342,19 @@ const styles = {
   },
   th: {
     padding: '12px',
-    background: '#fef9c3',
-    borderBottom: '2px solid #e5e7eb',
+    background: '#f3f7f4',
+    color: '#68766e',
+    borderBottom: '1px solid #dce6df',
     textAlign: 'left',
+    fontFamily: 'Arial, sans-serif',
+    fontSize: '11px',
+    textTransform: 'uppercase',
+    letterSpacing: '1px',
   },
   td: {
     padding: '12px',
-    borderBottom: '1px solid #e5e7eb',
+    borderBottom: '1px solid #edf1ee',
+    fontFamily: 'Arial, sans-serif',
   },
   center: { textAlign: 'center' },
   right: { textAlign: 'right' },
@@ -313,12 +364,14 @@ const styles = {
     justifyContent: 'center',
   },
   editBtn: {
-    background: '#fde68a',
+    background: '#e7f2eb',
+    color: '#236b4a',
     border: 'none',
     padding: '6px 10px',
   },
   deleteBtn: {
-    background: '#fecaca',
+    background: '#fff0ef',
+    color: '#a33a32',
     border: 'none',
     padding: '6px 10px',
   },
@@ -326,6 +379,10 @@ const styles = {
     marginTop: '16px',
     display: 'flex',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    color: '#68766e',
+    fontFamily: 'Arial, sans-serif',
+    fontSize: '13px',
   },
   modal: {
     position: 'fixed',

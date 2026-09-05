@@ -2,14 +2,14 @@ const {Product, Transaction} = require('../models');
 const {Op} = require('sequelize');
 
 const tambahProduk = async (req, res) => {
-  const { name, stock } = req.body;
+    const { name, stock, price = 0 } = req.body;
 
   try {
-    if (!name || stock === undefined) {
+    if (!name?.trim() || stock === undefined || Number(stock) < 0 || Number(price) < 0) {
       return res.status(400).json({ message: 'Data tidak lengkap' });
     }
 
-    const product = await Product.create({ name, stock });
+    const product = await Product.create({ name: name.trim(), stock: Number(stock), price: Number(price) });
 
     res.status(201).json({
       message: 'Produk berhasil ditambahkan',
@@ -23,12 +23,16 @@ const tambahProduk = async (req, res) => {
 
 const updateProduct = async (req,res) => {
    const {id} = req.params;
+    const { name, stock, price = 0 } = req.body;
    try {
     const product = await Product.findByPk(id);
     if (!product) {
         return res.status(404).json({ message: 'Produk tidak ditemukan' });
     }
-    await product.update(req.body);
+    if (!name?.trim() || Number(stock) < 0 || Number(price) < 0) {
+        return res.status(400).json({ message: 'Data produk tidak valid' });
+    }
+    await product.update({ name: name.trim(), stock: Number(stock), price: Number(price) });
     res.status(200).json({
         message: 'Produk berhasil diperbarui',
         product

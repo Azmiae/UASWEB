@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 
     require('./models/User'); 
 
-    await sequelize.sync();
+    await sequelize.sync({ alter: true });
     console.log('Database synchronized');
 
 
