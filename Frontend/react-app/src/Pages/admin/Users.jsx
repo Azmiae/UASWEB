@@ -37,7 +37,23 @@ export default function Users() {
 
       <div style={styles.toolbar}><div style={styles.searchWrap}><span>⌕</span><input style={styles.searchInput} placeholder="Cari nama, email, atau role" value={search} onChange={(e) => setSearch(e.target.value)} /></div><span style={styles.result}>{filteredUsers.length} pengguna</span></div>
 
+      <div style={{ marginBottom: 12, display: 'flex', gap: 8 }}>
+        <input
+          placeholder="Cari email..."
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          style={{ padding: 8, borderRadius: 6, border: '1px solid #e5e7eb', flex: 1 }}
+        />
+        <button
+          onClick={() => fetchUsers(q)}
+          style={{ padding: '8px 12px', borderRadius: 6, background: '#60a5fa', color: '#fff', border: 'none', cursor: 'pointer' }}
+        >
+          Cari
+        </button>
+      </div>
+
       <div style={styles.tableWrapper}>
+        {loading && <div style={{ padding: 12 }}>Memuat...</div>}
         <table style={styles.table}>
           <thead>
             <tr>

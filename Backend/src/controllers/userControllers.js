@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
+const { Op } = require('sequelize');
 const allowedFields =['email'];
 
 const getProfile = async (req, res) => {
@@ -13,10 +14,13 @@ const getProfile = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
   try {
-    const { page = 1, limit = 10, role } = req.query;
+    const { page = 1, limit = 10, role, q } = req.query;
 
     const offset = (page - 1) * limit;
-    const where = role ? { role } : {};
+    const where = {};
+
+    if (role) where.role = role;
+    if (q) where.email = { [Op.like]: `%${q}%` };
 
     const { count, rows } = await User.findAndCountAll({
       where,
