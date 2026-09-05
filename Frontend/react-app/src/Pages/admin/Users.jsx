@@ -1,16 +1,26 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import api from '../../api/axios'
 
 export default function Users() {
-  const [users, setUsers] = useState([
-    { id: 1, name: 'Admin Utama', email: 'admin@test.com', role: 'admin' },
-    { id: 2, name: 'Staff Gudang', email: 'staff@test.com', role: 'staff' },
-    {
-      id: 3,
-      name: 'Staff Operasional',
-      email: 'staff2@test.com',
-      role: 'staff',
-    },
-  ])
+  const [users, setUsers] = useState([])
+  const [q, setQ] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const fetchUsers = async (query = '') => {
+    try {
+      setLoading(true)
+      const res = await api.get('/users', { params: { q: query } })
+      setUsers(res.data.users || [])
+    } catch (err) {
+      console.error('Gagal mengambil users', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchUsers()
+  }, [])
 
   const deleteUser = (id) => {
     if (!window.confirm('Apakah yakin ingin menghapus user ini?')) return
@@ -22,7 +32,23 @@ export default function Users() {
       <h1>Manajemen User</h1>
       <p style={styles.subtitle}>Kelola akun pengguna dan perannya</p>
 
+      <div style={{ marginBottom: 12, display: 'flex', gap: 8 }}>
+        <input
+          placeholder="Cari email..."
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          style={{ padding: 8, borderRadius: 6, border: '1px solid #e5e7eb', flex: 1 }}
+        />
+        <button
+          onClick={() => fetchUsers(q)}
+          style={{ padding: '8px 12px', borderRadius: 6, background: '#60a5fa', color: '#fff', border: 'none', cursor: 'pointer' }}
+        >
+          Cari
+        </button>
+      </div>
+
       <div style={styles.tableWrapper}>
+        {loading && <div style={{ padding: 12 }}>Memuat...</div>}
         <table style={styles.table}>
           <thead>
             <tr>
@@ -35,7 +61,7 @@ export default function Users() {
           </thead>
 
           <tbody>
-            {users.length === 0 && (
+            {users.length === 0 && !loading && (
               <tr>
                 <td colSpan="5" style={styles.empty}>
                   Tidak ada data user
